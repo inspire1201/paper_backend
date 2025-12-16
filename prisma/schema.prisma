@@ -7,21 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id    Int    @id @default(autoincrement())
-  name  String
-  email String @unique
-  code  String @unique
-
-  @@map("users")
-}
-
-model assembly_vandan {
-  id            Int    @id @default(autoincrement())
-  assembly_id   Int    @unique
-  assembly_name String
-}
-
 model tbl_all_surname {
   id                  Int       @id @default(autoincrement())
   surname_id          String    @db.VarChar(250)
@@ -39,4 +24,17 @@ model tbl_all_surname {
   surname_category_en String    @db.VarChar(250)
   category_flag       Int       @default(0)
   updation_date       DateTime? @db.Date
+}
+
+model assembly_paper {
+  id            Int    @id @default(autoincrement())
+  assembly_id   Int    @unique
+  assembly_name String
+}
+
+model user_paper {
+  id    Int    @id @default(autoincrement())
+  name  String
+  email String @unique
+  code  String @unique
 }

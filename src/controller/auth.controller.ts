@@ -16,7 +16,7 @@ export const registerUser = async (req: any, res: any) => {
 
         
 
-        const existingUser = await prisma.user.findUnique({
+        const existingUser = await prisma.user_paper.findUnique({
             where: { code },
         });
 
@@ -24,7 +24,7 @@ export const registerUser = async (req: any, res: any) => {
             return res.status(400).json({ success: false, message: "User with this code already exists" });
         }
 
-          const newUser = await prisma.user.create({
+          const newUser = await prisma.user_paper.create({
             data: {
                 name,
                 code,
@@ -52,7 +52,7 @@ export const login = async (req: any, res: any) => {
       return res.status(400).json({ success: false, message: 'All fileds are required' });
     }
 
-      const user = await prisma.user.findUnique({
+      const user = await prisma.user_paper.findUnique({
       where: { code },
     });
 

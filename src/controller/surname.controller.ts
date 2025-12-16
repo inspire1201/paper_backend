@@ -111,7 +111,7 @@ const validateViewMode = (view_mode: any): { isValid: boolean; error?: string; v
 
 export const getAssemblies = async (req: Request, res: Response) => {
     try {
-        const assemblies = await prisma.assembly_vandan.findMany({
+        const assemblies = await prisma.assembly_paper.findMany({
             orderBy: {
                 assembly_name: "asc",
             },
@@ -230,7 +230,7 @@ const buildAssemblyFilter = (assembly_id: string) => {
 // HELPER FUNCTION: Get assembly details
 // ============================================================================
 const getAssemblyDetails = async (assemblyNumbers: number[]) => {
-    const assemblyList = await prisma.assembly_vandan.findMany({
+    const assemblyList = await prisma.assembly_paper.findMany({
         where: {
             assembly_id: { in: assemblyNumbers }
         },
@@ -1380,7 +1380,7 @@ export const getCasteByAssembly = async (req: any, res: any) => {
                 t.surname_caste,
                 SUM(t.count_num) as total_count
             FROM tbl_all_surname t
-            INNER JOIN assembly_vandan s ON t.assembly_no = s.assembly_id
+            INNER JOIN assembly_paper s ON t.assembly_no = s.assembly_id
             WHERE t.surname_caste = ?
             GROUP BY t.surname_caste, s.assembly_id, s.assembly_name
             ORDER BY total_count DESC
