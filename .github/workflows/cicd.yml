@@ -1,0 +1,75 @@
+name: Deploy Paper Backend
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      # DATABASE_USER: ${{ secrets.DATABASE_USER }}
+      # DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      # DATABASE_NAME: ${{ secrets.DATABASE_NAME }}
+      # DATABASE_HOST: ${{ secrets.DATABASE_HOST }}
+      # DATABASE_PORT: ${{ secrets.DATABASE_PORT }}
+      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      PORT: ${{ secrets.PORT }}
+    steps:
+      # 1️⃣ Checkout repo in the runner (required to get actions workspace)
+      - name: Checkout Source
+        uses: actions/checkout@v4
+
+      # 2️⃣ Ensure backend folder exists
+      - name: Ensure Backend Folder Exists
+        run: |
+          mkdir -p /home/ubuntu/paper-backend
+
+      # 3️⃣ Clone repo into a temporary folder
+      - name: Clone Repo to Temp Folder
+        run: |
+          cd /home/ubuntu
+          rm -rf paper-backend-temp
+          git clone https://github.com/inspire1201/paper_backend paper-backend-temp
+
+      # 4️⃣ Sync temp folder to persistent backend folder
+      - name: Sync Code to Backend Folder
+        run: |
+          rsync -a --delete /home/ubuntu/paper-backend-temp/ /home/ubuntu/paper-backend/
+
+      # 5️⃣ Install Node.js dependencies
+      - name: Install Dependencies
+        run: |
+          cd /home/ubuntu/paper-backend
+          npm install
+
+      # 6️⃣ Prisma generate (if using Prisma)
+      - name: Prisma Generate
+        run: |
+          cd /home/ubuntu/paper-backend
+          npm run generate
+
+      # 7️⃣ Build TypeScript
+      - name: Build TypeScript
+        run: |
+          cd /home/ubuntu/paper-backend
+          npm run build
+
+      # 8️⃣ Stop existing PM2 process (for zero-downtime you can replace with reload)
+      - name: Stop and Delete Old PM2 Process
+        run: |
+          pm2 stop paper_backend || true
+          pm2 delete paper_backend || true
+
+
+      # 9️⃣ Start or restart backend with PM2
+      - name: Start Backend with PM2
+        run: |
+          cd /home/ubuntu/paper-backend
+          pm2 start dist/index.js --name paper_backend --update-env --env production
+
+      # 🔟 Save PM2 process list to auto-start on reboot
+      - name: Save PM2 Process List
+        run: pm2 save
