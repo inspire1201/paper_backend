@@ -582,6 +582,9 @@ export const getAllCategoryStatus = async (req: any, res: any) => {
         return getCategoryStatsSeparate(req, res);
     }
 };
+
+
+
 export const getCasteDetailsByCategory = async (req: any, res: any) => {
     try {
         const { assembly_id, category } = req.query;
@@ -1413,4 +1416,108 @@ export const getCasteByAssembly = async (req: any, res: any) => {
         });
     }
 };
+
+// ============================================================================
+// IN AREA SEARCH - BY CATEGORY
+// ============================================================================
+
+/**
+ * Get all categories with their total counts
+ * Similar to getAllCastesWithCount but for categories
+ */
+export const getAllCategoriesWithCount = async (req: any, res: any) => {
+    try {
+        // Get all categories with total count using raw SQL
+        const categoryData: any[] = await prisma.$queryRawUnsafe(`
+            SELECT 
+                surname_category,
+                SUM(count_num) as total_count
+            FROM tbl_all_surname
+            WHERE surname_category IS NOT NULL
+              AND surname_category != ''
+            GROUP BY surname_category
+            ORDER BY total_count DESC
+        `);
+
+        // Format response
+        const formattedData = categoryData.map(item => ({
+            category_name: item.surname_category,
+            total_count: Number(item.total_count)
+        }));
+
+        return res.status(200).json({
+            success: true,
+            total_categories: formattedData.length,
+            data: formattedData
+        });
+
+    } catch (error: any) {
+        console.error('Error in getAllCategoriesWithCount:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch category data',
+            message: error.message
+        });
+    }
+};
+
+/**
+ * Get assembly-wise breakdown for a specific category
+ * Shows which assemblies have this category and the count in each
+ */
+export const getCategoryByAssembly = async (req: any, res: any) => {
+    try {
+        const { category } = req.query;
+
+        // Validate category
+        const categoryValidation = validateStringParam(category, 'Category', true);
+        if (!categoryValidation.isValid) {
+            return res.status(400).json({
+                success: false,
+                error: categoryValidation.error
+            });
+        }
+
+        // Get assembly-wise data for the specific category using raw SQL with JOIN
+        const assemblyData: any[] = await prisma.$queryRawUnsafe(`
+            SELECT 
+                s.assembly_id,
+                s.assembly_name,
+                t.surname_category,
+                SUM(t.count_num) as total_count
+            FROM tbl_all_surname t
+            INNER JOIN assembly_paper s ON t.assembly_no = s.assembly_id
+            WHERE t.surname_category = ?
+            GROUP BY t.surname_category, s.assembly_id, s.assembly_name
+            ORDER BY total_count DESC
+        `, category);
+
+        // Calculate total count across all assemblies
+        const totalCount = assemblyData.reduce((sum, item) => sum + Number(item.total_count), 0);
+
+        // Format response
+        const formattedData = assemblyData.map(item => ({
+            assembly_id: item.assembly_id,
+            assembly_name: item.assembly_name,
+            count: Number(item.total_count)
+        }));
+
+        return res.status(200).json({
+            success: true,
+            category_name: category,
+            total_assemblies: formattedData.length,
+            total_count: totalCount,
+            data: formattedData
+        });
+
+    } catch (error: any) {
+        console.error('Error in getCategoryByAssembly:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch assembly data for category',
+            message: error.message
+        });
+    }
+};
+
 

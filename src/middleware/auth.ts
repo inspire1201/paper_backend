@@ -13,17 +13,15 @@ export const isAuthenticated = (
     const token =
       // req.body.token ||
       req.header("Authorization")?.replace("Bearer ", "");
-    // console.log("Authorization header:", req.header("Authorization"));
-    // console.log("Extracted token:", token);
-    // console.log("token in authantication", token);
+   
     if (!token) {
       res.status(400).json({
         success: false,
-        message: "Token not found token in request",
+        message: "Token not found Log in Required",
       });
       return; // Use return here to exit the function without returning the response object
     }
-    // console.log("token in authantication", token);
+
 
     const JWT_SECRET = process.env.JWT_SECRET;
     if (!JWT_SECRET) {

@@ -32,6 +32,63 @@ model assembly_paper {
   assembly_name String
 }
 
+
+// model assembly_caste_detail_paper {
+//   id                         Int     @id @default(autoincrement())
+//   assembly_no                  Int
+//   total_voter                Int
+//   total_surname              Int
+//   surname_covered_criteria   Int
+//   voters_covered_criteria    Int
+//   voters_null_surname        Int
+//   voters_pct_covered         Float
+//   voters_pct_null_surname    Float
+//   voters_pct_not_covered     Float
+//   voters_pct_not_to_work     Float
+//   surname_similar_caste      String?
+//   filled_caste               String?
+//   filled_category            String?
+//   voters_filled_caste        Int
+//   voters_filled_category     Int
+//   voters_filled_caste2       Int
+//   voters_filled_category3    Int
+//   filled_caste_diff          Int?
+//   filled_category_diff       Int?
+//   caste_covered_vs_done      Int?
+//   caste_covered_vs_done_pct  Float?
+// }
+
+
+
+
+model assembly_caste_detail_paper {
+  id                         Int     @id @default(autoincrement())
+  ac_no                      Int
+  total_voter                Int
+  total_surname              Int
+  surname_covered_criteria   Int
+  voters_covered_criteria    Int
+  voters_null_surname        Int
+  // These fields now support 60.5
+  voters_pct_covered         Float   
+  voters_pct_null_surname    Float
+  voters_pct_not_covered     Float
+  voters_pct_not_to_work     Float
+  surname_similar_caste      String?
+  filled_caste               String?
+  filled_category            String?
+  voters_filled_caste        Int
+  voters_filled_category     Int
+  voters_filled_caste2       Int
+  voters_filled_category3    Int
+  filled_caste_diff          Int?
+  filled_category_diff       Int?
+  caste_covered_vs_done      Int?
+  caste_covered_vs_done_pct  Float?
+}
+
+
+
 model user_paper {
   id    Int    @id @default(autoincrement())
   name  String

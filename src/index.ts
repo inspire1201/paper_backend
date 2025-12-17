@@ -7,6 +7,8 @@ import { authRoute } from "./router/auth.route.js";
 import { surnameRoute } from "./router/surname.route.js";
 import prisma from "./prisma.js";
 
+
+
 const app = express();
 const PORT = Number(process.env.PORT) || 8080;
 
