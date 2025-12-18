@@ -1,5 +1,5 @@
 import express from "express";
-import { getAllCategoryStatus, getAssemblies, getSurnames, getCasteDetailsByCategory, getAllCasteStatus, getSurnameDetailsByCaste, getAllSurnameSimilarStats, getAllCastesWithCount, getCasteByAssembly, getAllCategoriesWithCount, getCategoryByAssembly } from "../controller/surname.controller.js";
+import { getAllCategoryStatus, getAssemblies, getSurnames, getCasteDetailsByCategory, getAllCasteStatus, getSurnameDetailsByCaste, getAllSurnameSimilarStats, getAllCastesWithCount, getCasteByAssembly, getAllCategoriesWithCount, getCategoryByAssembly, getAllAssemblyCasteDetail } from "../controller/surname.controller.js";
 import { isAuthenticated } from "../middleware/auth.js";
 
 export const surnameRoute = express.Router();
@@ -19,3 +19,7 @@ surnameRoute.get("/by-caste/assembly", isAuthenticated, getCasteByAssembly);
 // In Area Search - By Category
 surnameRoute.get("/by-category/all", isAuthenticated, getAllCategoriesWithCount);
 surnameRoute.get("/by-category/assembly", isAuthenticated, getCategoryByAssembly);
+
+// Assembly Caste Detail
+// surnameRoute.get("/assembly-caste-detail", isAuthenticated, getAllAssemblyCasteDetail);
+surnameRoute.get("/assembly-caste-detail", getAllAssemblyCasteDetail);

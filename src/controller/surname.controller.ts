@@ -1474,7 +1474,7 @@ export const getCategoryByAssembly = async (req: any, res: any) => {
         if (!categoryValidation.isValid) {
             return res.status(400).json({
                 success: false,
-                error: categoryValidation.error
+                error: categoryValidation.error   
             });
         }
 
@@ -1520,4 +1520,38 @@ export const getCategoryByAssembly = async (req: any, res: any) => {
     }
 };
 
+// ============================================================================
+// ASSEMBLY CASTE DETAIL CONTROLLER
+// ============================================================================
+
+/**
+ * Get all assembly caste detail data
+ * Filtering will be done on the client side
+ */
+export const getAllAssemblyCasteDetail = async (req: any, res: any) => {
+    try {
+        // Use raw SQL with JOIN to fetch assembly_name
+        const data: any[] = await prisma.$queryRawUnsafe(`
+            SELECT 
+                acd.*,
+                ap.assembly_name
+            FROM assembly_caste_detail_paper acd
+            INNER JOIN assembly_paper ap ON acd.ac_no = ap.assembly_id
+            ORDER BY acd.ac_no ASC
+        `);
+
+        return res.status(200).json({
+            success: true,
+            data: data
+        });
+
+    } catch (error: any) {
+        console.error('Error in getAllAssemblyCasteDetail:', error);
+        return res.status(500).json({
+            success: false,
+            error: 'Failed to fetch assembly caste detail data',
+            message: error.message
+        });
+    }
+};
 
