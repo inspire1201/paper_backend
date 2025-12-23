@@ -5,6 +5,7 @@ import fileUpload from "express-fileupload";
 import cors from "cors";
 import { authRoute } from "./router/auth.route.js";
 import { surnameRoute } from "./router/surname.route.js";
+import { bjpResultsRoute } from "./router/bjpResults.route.js";
 import prisma from "./prisma.js";
 
 
@@ -33,6 +34,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/surname", surnameRoute);
+app.use("/api/v1/bjp-results", bjpResultsRoute);
 
 
 
@@ -48,7 +50,7 @@ async function startServer() {
   try {
 
     await prisma.$connect(); // <-- Connect once
-   
+
     console.log("✅ Prisma connected");
     app.listen(PORT, '0.0.0.0', () => {
       console.log(`Server running at http://localhost:${PORT}`);
