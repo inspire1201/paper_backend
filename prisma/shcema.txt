@@ -68,19 +68,24 @@ model bjp_results_paper {
   other_seats   Int?
 }
 
+
 model election_results_col {
   id           Int     @id @default(autoincrement())
-  electionname String  @db.Text
-  electionyear Int?
-  position     String? @db.VarChar(255)
-  bjp_seat     String? @db.VarChar(255)
-  inc_seat     String? @db.VarChar(255)
-  bsp_seat     String? @db.VarChar(255)
-  jccj_seat    String? @db.VarChar(255)
-  ggp_seat     String? @db.VarChar(255)
-  cpi_seat     String? @db.VarChar(255)
-  aap_seat     String? @db.VarChar(255)
-  other_seat   String? @db.VarChar(255)
+  electionname String  @db.VarChar(255)
+  electionyear Int
+  position     String  @db.VarChar(100)
+  bjp_seat     String
+  inc_seat     String
+  bsp_seat     String
+  jccj_seat    String
+  ggp_seat     String?
+  cpi_seat     String?
+  aap_seat     String?
+  other_seat   String
+
+  @@index([electionyear])
+  @@index([position])
+  @@index([electionname])
 }
 
 model user_paper {
@@ -88,28 +93,4 @@ model user_paper {
   name  String
   email String @unique
   code  String @unique
-}
-
-model tbl_result_party_position {
-  id          Int    @id @default(autoincrement())
-  position    Int
-  ac_no       Int
-  ele_ae_2008 String @db.VarChar(100)
-  ele_pe_2009 String @db.VarChar(100)
-  ele_ae_2013 String @db.VarChar(100)
-  ele_pe_2014 String @db.VarChar(100)
-  ele_ae_2018 String @db.VarChar(100)
-  ele_pe_2019 String @db.VarChar(100)
-}
-
-model tbl_result_party_position_pe {
-  id          Int    @id @default(autoincrement())
-  position    Int
-  ac_no       Int
-  ele_ae_2008 String @db.VarChar(100)
-  ele_pe_2009 String @db.VarChar(100)
-  ele_ae_2013 String @db.VarChar(100)
-  ele_pe_2014 String @db.VarChar(100)
-  ele_ae_2018 String @db.VarChar(100)
-  ele_pe_2019 String @db.VarChar(100)
 }

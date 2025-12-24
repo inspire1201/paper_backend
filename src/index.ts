@@ -6,6 +6,7 @@ import cors from "cors";
 import { authRoute } from "./router/auth.route.js";
 import { surnameRoute } from "./router/surname.route.js";
 import { bjpResultsRoute } from "./router/bjpResults.route.js";
+import { electionResultsRoute } from "./router/electionResults.route.js";
 import prisma from "./prisma.js";
 
 
@@ -35,6 +36,7 @@ app.use(cors(corsOptions));
 app.use("/api/v1/auth", authRoute);
 app.use("/api/v1/surname", surnameRoute);
 app.use("/api/v1/bjp-results", bjpResultsRoute);
+app.use("/api/v1/election-results", electionResultsRoute);
 
 
 
