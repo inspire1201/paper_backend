@@ -81,6 +81,7 @@ model election_results_col {
   cpi_seat     String? @db.VarChar(255)
   aap_seat     String? @db.VarChar(255)
   other_seat   String? @db.VarChar(255)
+  nota_seat    String? @db.VarChar(255)
 }
 
 model user_paper {
@@ -112,4 +113,10 @@ model tbl_result_party_position_pe {
   ele_pe_2014 String @db.VarChar(100)
   ele_ae_2018 String @db.VarChar(100)
   ele_pe_2019 String @db.VarChar(100)
+}
+
+model loc_sabha_paper {
+  id       Int    @id @default(autoincrement())
+  lok_id   String @db.VarChar(45)
+  lok_name String @db.VarChar(45)
 }

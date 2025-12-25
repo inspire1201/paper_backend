@@ -33,9 +33,11 @@ export const getPositionWiseAnalytics = async (req: any, res: any) => {
             });
         }
 
-        // Group results by election type (AC = Assembly, PE = Parliament)
-        const assemblyResults = results.filter(r => r.electionname.toUpperCase() === 'AC');
-        const parliamentResults = results.filter(r => r.electionname.toUpperCase() === 'PE');
+        // Group results by election type 
+        // AC (Assembly Constituency): ae_ac, pe_ac
+        // PC (Parliament Constituency): ae_pc, pe_pc
+        const assemblyResults = results.filter(r => r.electionname.toLowerCase().endsWith('_ac'));
+        const parliamentResults = results.filter(r => r.electionname.toLowerCase().endsWith('_pc'));
 
         // Transform data for frontend consumption
         const transformData = (data: any[]) => {
@@ -47,6 +49,7 @@ export const getPositionWiseAnalytics = async (req: any, res: any) => {
                 { name: 'GGP', key: 'ggp_seat', color: '#9C27B0' },
                 { name: 'CPI', key: 'cpi_seat', color: '#F44336' },
                 { name: 'AAP', key: 'aap_seat', color: '#00BCD4' },
+                { name: 'NOTA', key: 'nota_seat', color: '#881735' },
                 { name: 'OTHER', key: 'other_seat', color: '#696969' }
             ];
 
@@ -123,19 +126,83 @@ export const getPositionDetailsByParty = async (req: any, res: any) => {
             ? 'tbl_result_party_position'
             : 'tbl_result_party_position_pe';
 
-        // Use raw query to filter by dynamic column and JOIN with assembly_paper
-        const results = await prisma.$queryRawUnsafe(
-            `SELECT 
-                p.*, 
-                a.assembly_id, 
-                a.assembly_name 
-            FROM ${tableName} p
-            LEFT JOIN assembly_paper a ON p.ac_no = a.assembly_id
-            WHERE p.position = ? AND p.${columnName} = ? 
-            ORDER BY p.ac_no ASC`,
-            parseInt(position),
-            party.toUpperCase()
-        );
+        // Define major parties to exclude when party is "OTHER"
+        const majorParties = ['BJP', 'INC', 'BSP', 'JCCJ', 'GGP', 'CPI', 'AAP', "NOTA"];
+
+        let results;
+
+        // Determine which lookup table to join based on election type
+        const isParliament = electionType.toUpperCase() === 'PE';
+
+        // Handle "OTHER" party case - exclude major parties
+        if (party.toUpperCase() === 'OTHER') {
+            const placeholders = majorParties.map(() => '?').join(', ');
+
+            if (isParliament) {
+                // For Parliament elections, join with loc_sabha_paper
+                results = await prisma.$queryRawUnsafe(
+                    `SELECT 
+                        p.*, 
+                        l.lok_id, 
+                        l.lok_name 
+                    FROM ${tableName} p
+                    LEFT JOIN loc_sabha_paper l ON p.ac_no = l.lok_id
+                    WHERE p.position = ? 
+                        AND p.${columnName} IS NOT NULL 
+                        AND p.${columnName} NOT IN (${placeholders})
+                    ORDER BY p.ac_no ASC`,
+                    parseInt(position),
+                    ...majorParties
+                );
+            } else {
+                // For Assembly elections, join with assembly_paper
+                results = await prisma.$queryRawUnsafe(
+                    `SELECT 
+                        p.*, 
+                        a.assembly_id, 
+                        a.assembly_name 
+                    FROM ${tableName} p
+                    LEFT JOIN assembly_paper a ON p.ac_no = a.assembly_id
+                    WHERE p.position = ? 
+                        AND p.${columnName} IS NOT NULL 
+                        AND p.${columnName} NOT IN (${placeholders})
+                    ORDER BY p.ac_no ASC`,
+                    parseInt(position),
+                    ...majorParties
+                );
+            }
+        } else {
+            // Handle specific party case
+            if (isParliament) {
+                // For Parliament elections, join with loc_sabha_paper
+                results = await prisma.$queryRawUnsafe(
+                    `SELECT 
+                        p.*, 
+                        l.lok_id, 
+                        l.lok_name 
+                    FROM ${tableName} p
+                    LEFT JOIN loc_sabha_paper l ON p.ac_no = l.lok_id
+                    WHERE p.position = ? AND p.${columnName} = ? 
+                    ORDER BY p.ac_no ASC`,
+                    parseInt(position),
+                    party.toUpperCase()
+                );
+            } else {
+                // For Assembly elections, join with assembly_paper
+                results = await prisma.$queryRawUnsafe(
+                    `SELECT 
+                        p.*, 
+                        a.assembly_id, 
+                        a.assembly_name 
+                    FROM ${tableName} p
+                    LEFT JOIN assembly_paper a ON p.ac_no = a.assembly_id
+                    WHERE p.position = ? AND p.${columnName} = ? 
+                    ORDER BY p.ac_no ASC`,
+                    parseInt(position),
+                    party.toUpperCase()
+                );
+            }
+        }
 
         if (!results || (results as any[]).length === 0) {
             return res.status(404).json({
@@ -144,6 +211,8 @@ export const getPositionDetailsByParty = async (req: any, res: any) => {
                 data: []
             });
         }
+
+        // console.log("resutl is ", results);
 
         return res.status(200).json({
             success: true,
